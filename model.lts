@@ -44,26 +44,16 @@ TR[t:0..1] = (when(t < 1) arriveTrg ->  TR[1]
 
 TREATMENT = TRT[0],
 TRT[t:0..1] = (when(t < 1) arriveTrt -> TRT[1]
- |when(t > 0) leaveTrt -> TRT[0]
- |when(t > 0) treat -> TRT[t]).
+ |when(t > 0) leaveTrt -> TRT[0]).
 
-SPECIALIST = (out -> SPECIALIST 
-            | treat -> SPECIALIST | idle -> SPECIALIST).
-
-// SeriousPatients = (fyArriveIn -> allocNs -> fyArriveOut
-                    //  -> arriveTrg -> leaveTrg 
-                    //  -> arriveTrt -> treat -> leaveTrt 
-                    //  -> fyLeaveIn -> fyLeaveOut -> freeNs -> SeriousPatients). 
-// NonSeriousPatients = (fyArriveIn -> allocNs -> arriveTrg 
-                    //  -> arriveTrg -> leaveTrg
-                    //  -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
-
-
+SPECIALIST = (in -> out -> SPECIALIST 
+            | in -> treatStart -> treatEnd -> out -> SPECIALIST 
+            | idle -> SPECIALIST).
 
 Nurse = ( //SeriousPatients //NonSeriousPatients
         fyArriveIn -> allocNs -> allocOd -> fyArriveOut 
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg 
-        -> arriveTrt -> freeOd -> treat -> allocOd -> leaveTrt 
+        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt 
         -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
         |fyArriveIn -> allocNs -> allocOd -> fyArriveOut
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg
