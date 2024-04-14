@@ -1,0 +1,61 @@
+//the number of nurses in the emergency department
+const MAX_NURSES = 3
+//the number of orderlies required to transfer a patient
+const TRANSFER_ORDERLIES = 3
+//the number of orderlies in the emergency department
+const MAX_ORDERLIES = 8
+//the number of patients that can be in the arriving place of Foyer
+const MAX_ARRIVING = 1
+//the number of patients that can be in the leaving place of Foyer
+const MAX_LEAVING = 1
+
+NurseCounter(I = MAX_NURSES) = NC[I],
+NC[v:0..MAX_NURSES] = (
+    when (v < MAX_NURSES)  freeNs -> NC[v+1]
+    |when (v > 0)  allocNs -> NC[v-1]
+).
+
+OrderliesCounter(I = MAX_ORDERLIES) = OC[I],
+OC[v:0..MAX_ORDERLIES] = (
+    when (v >= TRANSFER_ORDERLIES) allocOd -> OC[v - TRANSFER_ORDERLIES]
+    |when (v < MAX_ORDERLIES)  freeOd -> OC[v + TRANSFER_ORDERLIES]
+).
+
+FoyerArrive(I = 0) = FA[I],
+FA[v:0..MAX_ARRIVING] = (
+    when (v < MAX_ARRIVING) fyArriveIn -> FA[v+1]
+    |when (v > 0)  fyArriveOut -> FA[v-1]
+).
+
+FoyerLeave(I = 0) = FL[I],
+FL[v:0..MAX_LEAVING] = (
+    when (v < MAX_LEAVING) fyLeaveIn -> FL[v+1]
+    |when (v > 0)  fyLeaveOut -> FL[v-1]
+).
+
+TRIAGE = TR[0],
+TR[t:0..1] = (when(t < 1) arriveTrg -> TR[1]
+ |when(t > 0) leaveTrg -> TR[0]).
+
+TREATMENT = TRT[0],
+TRT[t:0..1] = (when(t < 1) arriveTrt -> TRT[1]
+ |when(t > 0) leaveTrt -> TRT[0]
+ |when(t > 0) treat -> TRT[t]).
+
+SPECIALIST = (out -> SPECIALIST | treat -> SPECIALIST | idle -> SPECIALIST).
+
+SeriousPatients = (fyArriveIn -> allocNs -> fyArriveOut
+                     -> arriveTrg -> leaveTrg 
+                     -> arriveTrt -> treat -> leaveTrt 
+                     -> fyLeaveIn -> fyLeaveOut -> freeNs -> SeriousPatients). 
+NonSeriousPatients = (fyArriveIn -> allocNs -> arriveTrg 
+                     -> arriveTrg -> leaveTrg
+                     -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
+
+Nurse = (allocNs -> freeNs -> Nurse).
+
+Producer = (fyArriveIn -> Producer).
+Consumer = (fyLeaveOut -> Consumer).
+||EmergencyDepartment = (SeriousPatients || NonSeriousPatients || Nurse || OrderliesCounter ||
+                             NurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
+
