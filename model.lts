@@ -73,6 +73,8 @@ Nurse = ( //SeriousPatients //NonSeriousPatients
         
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
-||EmergencyDepartment = (sp[1..2]:SeriousPatients ||np[1..2]:NonSeriousPatients || {ns[1..MAX_NURSES]}:Nurse || OrderliesCounter ||
-                             FreeNurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || dr::SPECIALIST || Producer || Consumer).
+||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse || ns[1..MAX_NURSES]::OrderliesCounter ||
+                             ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::FoyerArrive || ns[1..MAX_NURSES]::FoyerLeave ||
+                              ns[1..MAX_NURSES]::TRIAGE || ns[1..MAX_NURSES]::TREATMENT || ns[1..MAX_NURSES]::dr:SPECIALIST ||
+                               ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer).
 
