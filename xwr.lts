@@ -1,0 +1,53 @@
+// Patient: produce and consume patients.
+const N_patient = 2
+range T_patient = 0..N_patient
+
+PATIENT = PATIENT[0],
+PATIENT[i:T_patient] = ( when (i < N_patient) admission -> PATIENT[i+1]
+					   | when (i > 0) discharge -> PATIENT[i-1]).
+
+// Nurse: A nurse can allocate to one patient and lead the patient do the whole treatment.
+//        There are two kinds of patients(severe and non-severe), so that there are two paths. 
+NURSE = ( allocatePatient -> recuiteOrderlies -> leaveFoyer -> enterTriage -> releaseOrderlies -> 
+          recuiteOrderlies -> leaveTriage -> enterTreatment -> releaseOrderlies -> 
+          treatmentStart -> treatmentEnd -> recuiteOrderlies -> leaveTreatment -> enterFoyer -> releaseOrderlies -> releasePatient -> NURSE
+        | allocatePatient -> recuiteOrderlies -> leaveFoyer -> enterTriage -> releaseOrderlies -> 
+          recuiteOrderlies -> leaveTriage -> enterFoyer -> releaseOrderlies -> releasePatient -> NURSE).
+
+// ORDERLIES: Count the number of the orderlies.
+const N_orderlies = 8
+const N_orderliespernurse = 3
+range T_orderlies = 0..N_orderlies
+
+ORDERLIES = ORDERLIES[0],
+ORDERLIES[i:T_orderlies] = ( when (i < N_orderlies && i + N_orderliespernurse <= N_orderlies) recuiteOrderlies -> ORDERLIES[i+N_orderliespernurse]
+						   | when (i >= N_orderliespernurse) releaseOrderlies -> ORDERLIES[i-N_orderliespernurse]).
+
+// Foyer: There are two spots in the foyer, one for the patient to enter, one for the patient to leave.
+FOYERIN = FOYERIN[0],
+FOYERIN[i:0..1] = ( when (i < 1) allocatePatient -> FOYERIN[i+1]
+			      | when (i > 0) leaveFoyer -> FOYERIN[i-1]).
+
+FOYEROUT = FOYEROUT[0],
+FOYEROUT[i:0..1] = ( when (i < 1) enterFoyer -> FOYEROUT[i+1]
+			       | when (i > 0) releasePatient -> FOYEROUT[i-1]).
+
+// Triage: Only one patient can be in the triage.
+TRIAGE = TRIAGE[0],
+TRIAGE[i:0..1] = ( when (i < 1) enterTriage -> TRIAGE[i+1]
+			     | when (i > 0) leaveTriage -> TRIAGE[i-1]).
+
+// Treatment: Only one patient can be in the treatment room.
+TREATMENT = TREATMENT[0],
+TREATMENT[i:0..1] = ( when (i < 1) enterTreatment -> TREATMENT[i+1]
+			        | when (i > 0) leaveTreatment -> TREATMENT[i-1]).
+
+// Specialist
+SPECIALIST = ( specialistEnterTreatment -> specialistLeaveTreatment -> SPECIALIST
+			 | specialistEnterTreatment -> treatmentStart -> treatmentEnd -> specialistLeaveTreatment -> SPECIALIST).
+
+// Concurrent -> the complete model
+const N_nurse = 2
+|| TEST = (nurse[i:1..N_nurse]:NURSE || nurse[i:1..N_nurse]::(PATIENT / {allocatePatient/admission, releasePatient/discharge}) 
+          || nurse[i:1..N_nurse]::(ORDERLIES) || nurse[i:1..N_nurse]::(FOYERIN) || nurse[i:1..N_nurse]::(FOYEROUT) 
+          || nurse[i:1..N_nurse]::(TRIAGE) || nurse[i:1..N_nurse]::(TREATMENT) || SPECIALIST).
