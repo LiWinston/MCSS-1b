@@ -52,10 +52,12 @@ NonSeriousPatients = (fyArriveIn -> allocNs -> arriveTrg
                      -> arriveTrg -> leaveTrg
                      -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
 
-Nurse = (allocNs -> freeNs -> Nurse).
+Nurse = (allocNs -> WORKING
+        |allocOd -> freeOd -> Nurse
+        |freeNs -> Nurse).
 
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
-||EmergencyDepartment = (SeriousPatients || NonSeriousPatients || Nurse || OrderliesCounter ||
+||EmergencyDepartment = ({a,b,c,d}::SeriousPatients ||{e,f,g}:: NonSeriousPatients || Nurse || OrderliesCounter ||
                              NurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
 
