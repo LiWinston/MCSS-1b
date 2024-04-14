@@ -47,7 +47,7 @@ SPECIALIST = ( specialistEnterTreatment -> specialistLeaveTreatment -> SPECIALIS
 			 | specialistEnterTreatment -> treatmentStart -> treatmentEnd -> specialistLeaveTreatment -> SPECIALIST).
 
 // Concurrent -> the complete model
-const N_nurse = 2
+const N_nurse = 3
 || TEST = (nurse[i:1..N_nurse]:NURSE || nurse[i:1..N_nurse]::(PATIENT / {allocatePatient/admission, releasePatient/discharge}) 
           || nurse[i:1..N_nurse]::(ORDERLIES) || nurse[i:1..N_nurse]::(FOYERIN) || nurse[i:1..N_nurse]::(FOYEROUT) 
           || nurse[i:1..N_nurse]::(TRIAGE) || nurse[i:1..N_nurse]::(TREATMENT) || nurse[i:1..N_nurse]::(SPECIALIST)).
