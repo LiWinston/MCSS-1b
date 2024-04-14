@@ -1,3 +1,8 @@
+/**
+Author name: Yongchun Li
+Student number: 1378156
+**/
+
 //the number of nurses in the emergency department
 const MAX_NURSES = 3
 //the number of orderlies required to transfer a patient
