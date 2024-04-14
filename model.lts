@@ -59,8 +59,7 @@ SPECIALIST = (out -> SPECIALIST
                     //  -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
 
 
-const FREE = 0
-const BUZY = 1
+
 Nurse = ( //SeriousPatients //NonSeriousPatients
         fyArriveIn -> allocNs -> allocOd -> fyArriveOut 
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg 
