@@ -42,7 +42,8 @@ TRT[t:0..1] = (when(t < 1) arriveTrt -> freeOd -> TRT[1]
  |when(t > 0) allocOd -> leaveTrt -> TRT[0]
  |when(t > 0) treat -> TRT[t]).
 
-SPECIALIST = (out -> SPECIALIST | treat -> SPECIALIST | idle -> SPECIALIST).
+SPECIALIST = (out -> SPECIALIST 
+            | treat -> SPECIALIST | idle -> SPECIALIST).
 
 SeriousPatients = (fyArriveIn -> allocNs -> fyArriveOut
                      -> arriveTrg -> leaveTrg 
@@ -62,6 +63,6 @@ Nurse[s:0..1] = ( when(s == 0) allocNs ->  Nurse[1]
         
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
-||EmergencyDepartment = ({a,b,c,d}::SeriousPatients ||{e,f,g}:: NonSeriousPatients || {n[1..MAX_NURSES]}::Nurse || OrderliesCounter ||
-                             FreeNurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
+||EmergencyDepartment = (sp[1..2]::SeriousPatients ||np[1..2]:: NonSeriousPatients || {ns[1..MAX_NURSES]}::Nurse || OrderliesCounter ||
+                             FreeNurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || dr::SPECIALIST || Producer || Consumer).
 
