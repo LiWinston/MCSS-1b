@@ -1,5 +1,5 @@
 // Patient: produce and consume patients.
-const N_patient = 2
+const N_patient = 100
 range T_patient = 0..N_patient
 
 PATIENT = PATIENT[0],
@@ -50,4 +50,4 @@ SPECIALIST = ( specialistEnterTreatment -> specialistLeaveTreatment -> SPECIALIS
 const N_nurse = 2
 || TEST = (nurse[i:1..N_nurse]:NURSE || nurse[i:1..N_nurse]::(PATIENT / {allocatePatient/admission, releasePatient/discharge}) 
           || nurse[i:1..N_nurse]::(ORDERLIES) || nurse[i:1..N_nurse]::(FOYERIN) || nurse[i:1..N_nurse]::(FOYEROUT) 
-          || nurse[i:1..N_nurse]::(TRIAGE) || nurse[i:1..N_nurse]::(TREATMENT) || SPECIALIST).
+          || nurse[i:1..N_nurse]::(TRIAGE) || nurse[i:1..N_nurse]::(TREATMENT) || nurse[i:1..N_nurse]::(SPECIALIST)).
