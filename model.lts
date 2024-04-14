@@ -61,15 +61,14 @@ SPECIALIST = (out -> SPECIALIST
 
 const FREE = 0
 const BUZY = 1
-Nurse = ( //SeriousPatients
+Nurse = ( //SeriousPatients //NonSeriousPatients
         fyArriveIn -> allocNs -> allocOd -> fyArriveOut 
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg 
         -> arriveTrt -> freeOd -> treat -> allocOd -> leaveTrt 
-        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> nurse
-        | //NonSeriousPatients
-        fyArriveIn -> allocNs -> allocOd -> fyArriveOut
+        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
+        |fyArriveIn -> allocNs -> allocOd -> fyArriveOut
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg
-        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> nurse
+        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
         ).
         
 Producer = (fyArriveIn -> Producer).
