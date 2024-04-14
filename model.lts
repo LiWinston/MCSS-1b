@@ -34,12 +34,12 @@ FL[v:0..MAX_LEAVING] = (
 ).
 
 TRIAGE = TR[0],
-TR[t:0..1] = (when(t < 1) arriveTrg -> freeOd->  TR[1] 
+TR[t:0..1] = (when(t < 1) arriveTrg -> freeOd ->  TR[1] 
  |when(t > 0) allocOd -> leaveTrg -> TR[0]).
 
 TREATMENT = TRT[0],
-TRT[t:0..1] = (when(t < 1) arriveTrt -> TRT[1]
- |when(t > 0) leaveTrt -> TRT[0]
+TRT[t:0..1] = (when(t < 1) arriveTrt -> freeOd -> TRT[1]
+ |when(t > 0) allocOd -> leaveTrt -> TRT[0]
  |when(t > 0) treat -> TRT[t]).
 
 SPECIALIST = (out -> SPECIALIST | treat -> SPECIALIST | idle -> SPECIALIST).
