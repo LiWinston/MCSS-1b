@@ -18,7 +18,7 @@ NC[v:0..MAX_NURSES] = (
 OrderliesCounter(I = MAX_ORDERLIES) = OC[I],
 OC[v:0..MAX_ORDERLIES] = (
     when (v >= TRANSFER_ORDERLIES) allocOd -> OC[v - TRANSFER_ORDERLIES]
-    |when (v < MAX_ORDERLIES)  freeOd -> OC[v + TRANSFER_ORDERLIES]
+    |when (v <= MAX_ORDERLIES - TRANSFER_ORDERLIES)  freeOd -> OC[v + TRANSFER_ORDERLIES]
 ).
 
 FoyerArrive(I = 0) = FA[I],
@@ -52,9 +52,8 @@ NonSeriousPatients = (fyArriveIn -> allocNs -> arriveTrg
                      -> arriveTrg -> leaveTrg
                      -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
 
-Nurse = (allocNs -> WORKING
-        |allocOd -> freeOd -> Nurse
-        |freeNs -> Nurse).
+Nurse = (allocNs -> freeNs -> Nurse
+        |allocOd -> freeOd -> Nurse).
 
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
