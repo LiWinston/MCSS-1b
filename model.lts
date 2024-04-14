@@ -52,11 +52,16 @@ NonSeriousPatients = (fyArriveIn -> allocNs -> arriveTrg
                      -> arriveTrg -> leaveTrg
                      -> fyLeaveIn-> fyLeaveOut -> freeNs -> NonSeriousPatients).
 
-Nurse = (allocNs -> freeNs -> Nurse
-        |allocOd -> freeOd -> Nurse).
 
+const FREE = 0
+const BUZY = 1
+Nurse = Nurse[0],
+Nurse[s:0..1] = ( when(s == 0) allocNs ->  Nurse[1]
+                |when(s == 1) freeNs -> Nurse[0]
+                |when(s == 1) allocOd -> freeOd -> Nurse[s]).
+        
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
-||EmergencyDepartment = ({a,b,c,d}::SeriousPatients ||{e,f,g}:: NonSeriousPatients || Nurse || OrderliesCounter ||
-                             Free || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
+||EmergencyDepartment = ({a,b,c,d}::SeriousPatients ||{e,f,g}:: NonSeriousPatients || {n[1..MAX_NURSES]}::Nurse || OrderliesCounter ||
+                             FreeNurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
 
