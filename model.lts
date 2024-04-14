@@ -61,6 +61,20 @@ Nurse = ( //SeriousPatients //NonSeriousPatients
         
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
+
+property Error_foyer = (fyArriveIn -> fyArriveIn -> ERROR).
+property Error_nurse = (allocNs -> allocNs -> ERROR).
+property Error_orderlies = (allocOd -> allocOd -> ERROR).
+property Error_triage = (arriveTrg -> arriveTrg -> ERROR).
+property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
+property Error_specialist = (in -> in -> ERROR).
+
+// progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
+//         , arriveTrg, freeOd, leaveTrg
+//         , fyLeaveIn ,freeNs, fyLeaveOut}
+
+progress  Check_AllocNs_Liveness = {allocNs,freeNs}
+
 ||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse || ns[1..MAX_NURSES]::OrderliesCounter ||
                             ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::FoyerArrive || 
                             ns[1..MAX_NURSES]::FoyerLeave || ns[1..MAX_NURSES]::TRIAGE || 
