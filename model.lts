@@ -9,7 +9,7 @@ const MAX_ARRIVING = 1
 //the number of patients that can be in the leaving place of Foyer
 const MAX_LEAVING = 1
 
-NurseCounter(I = MAX_NURSES) = NC[I],
+FreeNurseCounter(I = MAX_NURSES) = NC[I],
 NC[v:0..MAX_NURSES] = (
     when (v < MAX_NURSES)  freeNs -> NC[v+1]
     |when (v > 0)  allocNs -> NC[v-1]
@@ -24,18 +24,18 @@ OC[v:0..MAX_ORDERLIES] = (
 FoyerArrive(I = 0) = FA[I],
 FA[v:0..MAX_ARRIVING] = (
     when (v < MAX_ARRIVING) fyArriveIn -> FA[v+1]
-    |when (v > 0)  fyArriveOut -> FA[v-1]
+    |when (v > 0)  allocOd -> fyArriveOut -> FA[v-1]
 ).
 
 FoyerLeave(I = 0) = FL[I],
 FL[v:0..MAX_LEAVING] = (
-    when (v < MAX_LEAVING) fyLeaveIn -> FL[v+1]
+    when (v < MAX_LEAVING) fyLeaveIn -> freeOd -> FL[v+1]
     |when (v > 0)  fyLeaveOut -> FL[v-1]
 ).
 
 TRIAGE = TR[0],
-TR[t:0..1] = (when(t < 1) arriveTrg -> TR[1]
- |when(t > 0) leaveTrg -> TR[0]).
+TR[t:0..1] = (when(t < 1) arriveTrg -> freeOd->  TR[1] 
+ |when(t > 0) allocOd -> leaveTrg -> TR[0]).
 
 TREATMENT = TRT[0],
 TRT[t:0..1] = (when(t < 1) arriveTrt -> TRT[1]
@@ -58,5 +58,5 @@ Nurse = (allocNs -> freeNs -> Nurse
 Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
 ||EmergencyDepartment = ({a,b,c,d}::SeriousPatients ||{e,f,g}:: NonSeriousPatients || Nurse || OrderliesCounter ||
-                             NurseCounter || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
+                             Free || FoyerArrive || FoyerLeave || TRIAGE || TREATMENT || SPECIALIST || Producer || Consumer).
 
