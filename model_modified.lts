@@ -84,12 +84,12 @@ Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
 
 // Definition of error properties to check for potential errors
-// property Error_foyer = (fyArriveIn -> fyArriveIn -> ERROR).
-// property Error_nurse = (allocNs -> allocNs -> ERROR).
-// property Error_orderlies = (allocOd -> allocOd -> ERROR).
-// property Error_triage = (arriveTrg -> arriveTrg -> ERROR).
-// property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
-// property Error_specialist = (in -> in -> ERROR).
+property Error_foyer = (fyArriveIn -> fyArriveIn -> ERROR).
+property Error_nurse = (allocNs -> allocNs -> ERROR).
+property Error_orderlies = (allocOd -> allocOd -> ERROR).
+property Error_triage = (arriveTrg -> arriveTrg -> ERROR).
+property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
+property Error_specialist = (in -> in -> ERROR).
 
 property SAFE_fOYER = (fyArriveIn -> fyArriveOut
                         -> fyLeaveIn -> fyLeaveOut -> SAFE_fOYER).
@@ -101,9 +101,7 @@ property SAFE_orderlies = (allocOd -> freeOd -> allocOd -> SAFE_orderlies).
 
 // Definition of progress properties to ensure liveness,
 // ensures each patient will eventually get to leave the emergency department
-progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
-        , arriveTrg, freeOd, leaveTrg
-        , fyLeaveIn ,freeNs, fyLeaveOut}
+progress  Check_patient_Liveness = {fyArriveIn, allocNs, freeNs, fyLeaveOut}
 
 // Composition of all components into the EmergencyDepartment system
 ||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse || ns[1..MAX_NURSES]::OrderliesCounter ||
@@ -112,3 +110,5 @@ progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
                             ns[1..MAX_NURSES]::TREATMENT || ns[1..MAX_NURSES]::SPECIALIST ||
                             ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer ||
                             DeepDarkFantasy).
+
+|| SC = (EmergencyDepartment || SAFE_fOYER || SAFE_nurse || SAFE_triage || SAFE_treatment || SAFE_specialist || SAFE_orderlies).
