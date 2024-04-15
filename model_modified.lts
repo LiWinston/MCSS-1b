@@ -66,15 +66,28 @@ SPECIALIST = (in -> out -> SPECIALIST
 // Definition of Nurse process
 Nurse(I = 0) = Nurse[I],
 Nurse[x: 0..10] = (
+        // Divide the Nurse process into 11 states, each state represents a different state of the nurse
+        // 0: Nurse is free(Nurse is not allocated to any patient)
+        // 1-4 : Nurse is allocated to a Serious patient
+        // 1: Nurse arrived the foyer
+        // 2: Nurse arrived the triage
+        // 3: Nurse arrived the treatment
+        // 4: Nurse arrived back to foyer
         when(x == 0)  fyArriveIn -> allocNs ->Nurse[1] 
         |when(x == 0) fyArriveIn -> allocNs ->Nurse[5]
         |when(x == 1) allocOd -> fyArriveOut ->Nurse[7]//enter void state 7 where orderlies can be deallocated temporarily
         |when(x == 2) freeOd -> allocOd -> leaveTrg -> Nurse[8]
         |when(x == 3) freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> Nurse[9] 
         |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0]
-
+        // 5-6 + 4 : Nurse is allocated to a Non-serious patient(Share the same states 4)
+        // 5: Nurse arrived the foyer
+        // 6: Nurse arrived the triage
         |when(x == 5) allocOd -> fyArriveOut -> Nurse[10]
         |when(x == 6) freeOd -> allocOd -> leaveTrg -> Nurse[9]
+        // 7: Nurse at void state bwtween foyer and triage
+        // 8: Nurse at void state bwtween triage and treatment
+        // 9: Nurse at void state bwtween treatment and foyer
+        // 10: Nurse at void state bwtween foyer and triage(specific for Non-serious)
         |when(x == 7) arriveTrg -> Nurse[2] 
         |when(x == 7) freeOd -> allocOd -> Nurse[7]
         |when(x == 8) arriveTrt -> Nurse[3] 
