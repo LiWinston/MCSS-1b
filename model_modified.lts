@@ -64,18 +64,18 @@ SPECIALIST = (in -> out -> SPECIALIST
             | in -> treatStart -> treatEnd -> out -> SPECIALIST).
 
 // Definition of Nurse process
-Nurse = ( //SeriousPatients //NonSeriousPatients
-        fyArriveIn -> allocNs -> allocOd -> fyArriveOut -> enterDDF
-        -> arriveTrg -> freeOd -> allocOd -> leaveTrg -> enterDDF
-        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> enterDDF
-        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
-        |fyArriveIn -> allocNs -> allocOd -> fyArriveOut -> enterDDF
-        -> arriveTrg -> freeOd -> allocOd -> leaveTrg -> enterDDF
-        -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
+Nurse(I = 0) = Nurse[I],
+Nurse[x:0..4] = ( //SeriousPatients //NonSeriousPatients
+(fyArriveIn -> when(x == 0)  allocNs ->Nurse[1]
+        |when(x == 1) allocOd -> (fyArriveOut -> arriveTrg -> Nurse[2] |fyArriveOut -> freeOd -> allocOd -> arriveTrg -> Nurse[2])
+        |when(x == 2) freeOd -> allocOd -> leaveTrg -> arriveTrt -> Nurse[3]
+        |when(x == 3) freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> fyLeaveIn -> Nurse[4] 
+        |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0])
+|(fyArriveIn -> when(x == 0) fyArriveIn -> allocNs ->Nurse[1]
+        |when(x == 1) allocOd -> fyArriveOut  -> arriveTrg -> Nurse[2]
+        |when(x == 2) freeOd -> allocOd -> leaveTrg -> fyLeaveIn -> Nurse[4]
+        |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0])
         ).
-
-DeepDarkFantasy = ( enterDDF -> freeOd -> allocOd -> DeepDarkFantasy
-                   |enterDDF -> DeepDarkFantasy).
 
 // Definition of Producer process
 Producer = (fyArriveIn -> Producer).
@@ -104,11 +104,10 @@ property SAFE_orderlies = (allocOd -> freeOd -> allocOd -> SAFE_orderlies).
 progress  Check_patient_Liveness = {fyArriveIn, allocNs, freeNs, fyLeaveOut}
 
 // Composition of all components into the EmergencyDepartment system
-||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse || ns[1..MAX_NURSES]::OrderliesCounter ||
+||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse(0) || ns[1..MAX_NURSES]::OrderliesCounter ||
                             ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::TRIAGE ||
                             ns[1..MAX_NURSES]::FoyerArrive ||ns[1..MAX_NURSES]::FoyerLeave || 
                             ns[1..MAX_NURSES]::TREATMENT || ns[1..MAX_NURSES]::SPECIALIST ||
-                            ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer ||
-                            DeepDarkFantasy).
+                            ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer).
 
 || SC = (EmergencyDepartment || SAFE_fOYER || SAFE_nurse || SAFE_triage || SAFE_treatment || SAFE_specialist || SAFE_orderlies).
