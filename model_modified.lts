@@ -65,16 +65,17 @@ SPECIALIST = (in -> out -> SPECIALIST
 
 // Definition of Nurse process
 Nurse = ( //SeriousPatients //NonSeriousPatients
-        fyArriveIn -> allocNs -> allocOd -> fyArriveOut
-        -> arriveTrg -> freeOd -> allocOd -> leaveTrg
-        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt
+        fyArriveIn -> allocNs -> allocOd -> fyArriveOut -> enterDDF
+        -> arriveTrg -> freeOd -> allocOd -> leaveTrg -> enterDDF
+        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> enterDDF
         -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
-        |fyArriveIn -> allocNs -> allocOd -> fyArriveOut
-        -> arriveTrg -> freeOd -> allocOd -> leaveTrg
+        |fyArriveIn -> allocNs -> allocOd -> fyArriveOut -> enterDDF
+        -> arriveTrg -> freeOd -> allocOd -> leaveTrg -> enterDDF
         -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
         ).
 
-DeepDarkFantasy = 
+DeepDarkFantasy = ( enterDDF -> freeOd -> allocOd -> DeepDarkFantasy
+                   |enterDDF -> DeepDarkFantasy).
 
 // Definition of Producer process
 Producer = (fyArriveIn -> Producer).
