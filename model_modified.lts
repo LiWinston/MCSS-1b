@@ -69,18 +69,20 @@ Nurse[x: 0..10] = (
         when(x == 0)  fyArriveIn -> allocNs ->Nurse[1] 
         |when(x == 0) fyArriveIn -> allocNs ->Nurse[5]
         |when(x == 1) allocOd -> fyArriveOut ->Nurse[7]//enter void state 7 where orderlies can be deallocated temporarily
-        |when(x == 2) freeOd -> allocOd -> leaveTrg -> Nurese[8]
+        |when(x == 2) freeOd -> allocOd -> leaveTrg -> Nurse[8]
         |when(x == 3) freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> Nurse[9] 
         |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0]
 
         |when(x == 5) allocOd -> fyArriveOut -> Nurse[10]
         |when(x == 6) freeOd -> allocOd -> leaveTrg -> Nurse[9]
-
-        |when(x == 7) ( arriveTrg -> Nurse[2] | freeOd -> allocOd -> Nurse[7]).
-        |when(x == 8) ( arriveTrt -> Nurse[3] | freeOd -> allocOd -> Nurse[8]).
-        |when(x == 9) ( fyLeaveIn -> Nurse[4] | freeOd -> allocOd -> Nurse[9]).
-        |when(x == 10) ( arriveTrg -> Nurse[6] | freeOd -> allocOd -> Nurse[10]).
-
+        |when(x == 7) arriveTrg -> Nurse[2] 
+        |when(x == 7) freeOd -> allocOd -> Nurse[7]
+        |when(x == 8) arriveTrt -> Nurse[3] 
+        |when(x == 8) freeOd -> allocOd -> Nurse[8]
+        |when(x == 9) fyLeaveIn -> Nurse[4] 
+        |when(x == 9) freeOd -> allocOd -> Nurse[9]
+        |when(x == 10) arriveTrg -> Nurse[6] 
+        |when(x == 10) freeOd -> allocOd -> Nurse[10]
 ).
 
 // Definition of Producer process
