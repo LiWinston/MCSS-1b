@@ -11,7 +11,7 @@ const MAX_ARRIVING = 1  // Maximum number of patients that can arrive in the foy
 const MAX_LEAVING = 1  // Maximum number of patients that can leave the foyer
 
 // Definition of actions that can be performed in the system
-set Actions = {allocNs, freeNs, allocOd, freeOd, fyArriveIn, fyArriveOut, fyLeaveIn, fyLeaveOut, arriveTrg, leaveTrg, arriveTrt, leaveTrt, in, out, treatStart, treatEnd}.
+set Actions = {allocNs, freeNs, allocOd, freeOd, fyArriveIn, fyArriveOut, fyLeaveIn, fyLeaveOut, arriveTrg, leaveTrg, arriveTrt, leaveTrt, in, out, treatStart, treatEnd}
 
 // Definition of FreeNurseCounter process
 FreeNurseCounter(I = MAX_NURSES) = NC[I],
