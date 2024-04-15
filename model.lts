@@ -73,12 +73,20 @@ Producer = (fyArriveIn -> Producer).
 Consumer = (fyLeaveOut -> Consumer).
 
 // Definition of error properties to check for potential errors
-property Error_foyer = (fyArriveIn -> fyArriveIn -> ERROR).
-property Error_nurse = (allocNs -> allocNs -> ERROR).
-property Error_orderlies = (allocOd -> allocOd -> ERROR).
-property Error_triage = (arriveTrg -> arriveTrg -> ERROR).
-property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
-property Error_specialist = (in -> in -> ERROR).
+// property Error_foyer = (fyArriveIn -> fyArriveIn -> ERROR).
+// property Error_nurse = (allocNs -> allocNs -> ERROR).
+// property Error_orderlies = (allocOd -> allocOd -> ERROR).
+// property Error_triage = (arriveTrg -> arriveTrg -> ERROR).
+// property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
+// property Error_specialist = (in -> in -> ERROR).
+
+property SAFE_fOYER = (fyArriveIn -> fyArriveOut -> fyLeaveIn -> fyLeaveOut -> SAFE_fOYER).
+property SAFE_nurse = (allocNs -> freeNs -> allocNs -> SAFE_nurse).
+property SAFE_triage = (arriveTrg -> leaveTrg -> arriveTrg-> SAFE_triage).
+property SAFE_treatment = (arriveTrt -> leaveTrt -> arriveTrt -> SAFE_treatment).
+property SAFE_specialist = (in -> out -> in -> SAFE_specialist).
+property SAFE_orderlies = (allocOd -> freeOd -> allocOd -> SAFE_orderlies).
+
 
 // progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
 //         , arriveTrg, freeOd, leaveTrg
