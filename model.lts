@@ -3,15 +3,21 @@ Author name: Yongchun Li
 Student number: 1378156
 **/
 
-// Definition of constants representing maximum capacities and thresholds
-const MAX_NURSES = 3  // Maximum number of nurses in the emergency department
-const TRANSFER_ORDERLIES = 3  // Number of orderlies required to transfer a patient
-const MAX_ORDERLIES = 8  // Maximum number of orderlies in the emergency department
-const MAX_ARRIVING = 1  // Maximum number of patients that can arrive in the foyer
-const MAX_LEAVING = 1  // Maximum number of patients that can leave the foyer
+// Maximum number of nurses in the emergency department
+const MAX_NURSES = 3  
+// Number of orderlies required to transfer a patient
+const TRANSFER_ORDERLIES = 3  
+// Maximum number of orderlies in the emergency department
+const MAX_ORDERLIES = 8  
+// Maximum number of patients that can arrive in the foyer
+const MAX_ARRIVING = 1  
+// Maximum number of patients that can leave the foyer
+const MAX_LEAVING = 1  
 
 // Definition of actions that can be performed in the system
-set Actions = {allocNs, freeNs, allocOd, freeOd, fyArriveIn, fyArriveOut, fyLeaveIn, fyLeaveOut, arriveTrg, leaveTrg, arriveTrt, leaveTrt, in, out, treatStart, treatEnd}
+set Actions = {allocNs, freeNs, allocOd, freeOd, fyArriveIn, fyArriveOut,
+                fyLeaveIn, fyLeaveOut, arriveTrg, leaveTrg, arriveTrt,
+                leaveTrt, in, out, treatStart, treatEnd}
 
 // Definition of FreeNurseCounter process
 FreeNurseCounter(I = MAX_NURSES) = NC[I],
@@ -23,8 +29,10 @@ NC[v:0..MAX_NURSES] = (
 // Definition of OrderliesCounter process
 OrderliesCounter(I = MAX_ORDERLIES) = OC[I],
 OC[v:0..MAX_ORDERLIES] = (
-    when (v >= TRANSFER_ORDERLIES)  allocOd -> OC[v - TRANSFER_ORDERLIES]
-    |when (v <= MAX_ORDERLIES - TRANSFER_ORDERLIES)  freeOd -> OC[v + TRANSFER_ORDERLIES]
+    when (v >= TRANSFER_ORDERLIES)
+        allocOd -> OC[v - TRANSFER_ORDERLIES]
+    |when (v <= MAX_ORDERLIES - TRANSFER_ORDERLIES)
+        freeOd -> OC[v + TRANSFER_ORDERLIES]
 ).
 
 // Definition of FoyerArrive process
@@ -43,7 +51,7 @@ FL[v:0..MAX_LEAVING] = (
 
 // Definition of TRIAGE process
 TRIAGE = TR[0],
-TR[t:0..1] = (when(t < 1) arriveTrg ->  TR[1] 
+TR[t:0..1] = (when(t < 1) arriveTrg ->  TR[1]
  |when(t > 0) leaveTrg -> TR[0]).
 
 // Definition of TREATMENT process
@@ -52,20 +60,20 @@ TRT[t:0..1] = (when(t < 1) arriveTrt -> TRT[1]
  |when(t > 0) leaveTrt -> TRT[0]).
 
 // Definition of SPECIALIST process
-SPECIALIST = (in -> out -> SPECIALIST 
+SPECIALIST = (in -> out -> SPECIALIST
             | in -> treatStart -> treatEnd -> out -> SPECIALIST).
 
 // Definition of Nurse process
 Nurse = ( //SeriousPatients //NonSeriousPatients
-        fyArriveIn -> allocNs -> allocOd -> fyArriveOut 
-        -> arriveTrg -> freeOd -> allocOd -> leaveTrg 
-        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt 
+        fyArriveIn -> allocNs -> allocOd -> fyArriveOut
+        -> arriveTrg -> freeOd -> allocOd -> leaveTrg
+        -> arriveTrt -> freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt
         -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
         |fyArriveIn -> allocNs -> allocOd -> fyArriveOut
         -> arriveTrg -> freeOd -> allocOd -> leaveTrg
         -> fyLeaveIn -> freeOd -> freeNs -> fyLeaveOut -> Nurse
         ).
-        
+
 // Definition of Producer process
 Producer = (fyArriveIn -> Producer).
 
@@ -80,24 +88,23 @@ Consumer = (fyLeaveOut -> Consumer).
 // property Error_treatment = (arriveTrt -> arriveTrt -> ERROR).
 // property Error_specialist = (in -> in -> ERROR).
 
-property SAFE_fOYER = (fyArriveIn -> fyArriveOut -> fyLeaveIn -> fyLeaveOut -> SAFE_fOYER).
+property SAFE_fOYER = (fyArriveIn -> fyArriveOut
+                        -> fyLeaveIn -> fyLeaveOut -> SAFE_fOYER).
 property SAFE_nurse = (allocNs -> freeNs -> allocNs -> SAFE_nurse).
 property SAFE_triage = (arriveTrg -> leaveTrg -> arriveTrg-> SAFE_triage).
 property SAFE_treatment = (arriveTrt -> leaveTrt -> arriveTrt -> SAFE_treatment).
 property SAFE_specialist = (in -> out -> in -> SAFE_specialist).
 property SAFE_orderlies = (allocOd -> freeOd -> allocOd -> SAFE_orderlies).
 
-
-// progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
-//         , arriveTrg, freeOd, leaveTrg
-//         , fyLeaveIn ,freeNs, fyLeaveOut}
-
-// Definition of progress properties to ensure liveness
-progress  Check_AllocNs_Liveness = {allocNs,freeNs}
+// Definition of progress properties to ensure liveness,
+// ensures each patient will eventually get to leave the emergency department
+progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
+        , arriveTrg, freeOd, leaveTrg
+        , fyLeaveIn ,freeNs, fyLeaveOut}
 
 // Composition of all components into the EmergencyDepartment system
 ||EmergencyDepartment = ({ns[1..MAX_NURSES]}:Nurse || ns[1..MAX_NURSES]::OrderliesCounter ||
-                            ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::FoyerArrive || 
-                            ns[1..MAX_NURSES]::FoyerLeave || ns[1..MAX_NURSES]::TRIAGE || 
+                            ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::TRIAGE ||
+                            ns[1..MAX_NURSES]::FoyerArrive ||ns[1..MAX_NURSES]::FoyerLeave || 
                             ns[1..MAX_NURSES]::TREATMENT || ns[1..MAX_NURSES]::SPECIALIST ||
                             ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer).
