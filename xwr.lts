@@ -7,23 +7,31 @@ PATIENT[i:T_patient] = ( when (i < N_patient) admission -> PATIENT[i+1]
 					   | when (i > 0) discharge -> PATIENT[i-1]).
 
 // Nurse: A nurse can allocate to one patient and lead the patient do the whole treatment.
-//        There are two kinds of patients(severe and non-severe), so that there are two paths. 
-NURSE = ( allocatePatient -> recuiteOrderlies -> leaveFoyer -> enterTriage -> releaseOrderlies -> 
+//        There are two kinds of patients(severe and non-severe), so that there are two paths.
+NURSE = ( allocatePatient -> recuiteOrderlies -> leaveFoyer -> enterTriage -> releaseOrderlies ->
           recuiteOrderlies -> leaveTriage -> enterTreatment -> releaseOrderlies -> 
-          treatmentStart -> treatmentEnd -> recuiteOrderlies -> leaveTreatment -> enterFoyer -> releaseOrderlies -> releasePatient -> NURSE
+          treatmentStart -> treatmentEnd -> recuiteOrderlies -> leaveTreatment -> enterFoyer -> 
+          releaseOrderlies -> releasePatient -> NURSE
         | allocatePatient -> recuiteOrderlies -> leaveFoyer -> enterTriage -> releaseOrderlies -> 
-          recuiteOrderlies -> leaveTriage -> enterFoyer -> releaseOrderlies -> releasePatient -> NURSE).
+          recuiteOrderlies -> leaveTriage -> enterFoyer -> releaseOrderlies -> 
+          releasePatient -> NURSE).
 
 // ORDERLIES: Count the number of the orderlies.
+//            When nurse allocate orderlies, add the number of the orderlies nurse can allocate.
+//            When nurse release orderlies, subtract the number of the orderlies nurse can allocate.
 const N_orderlies = 8
 const N_orderliespernurse = 3
 range T_orderlies = 0..N_orderlies
 
 ORDERLIES = ORDERLIES[0],
-ORDERLIES[i:T_orderlies] = ( when (i < N_orderlies && i + N_orderliespernurse <= N_orderlies) recuiteOrderlies -> ORDERLIES[i+N_orderliespernurse]
-						   | when (i >= N_orderliespernurse) releaseOrderlies -> ORDERLIES[i-N_orderliespernurse]).
+ORDERLIES[i:T_orderlies] = ( when (i < N_orderlies && i + N_orderliespernurse <= N_orderlies) 
+                                  recuiteOrderlies -> ORDERLIES[i+N_orderliespernurse]
+						   | when (i >= N_orderliespernurse) 
+                                  releaseOrderlies -> ORDERLIES[i-N_orderliespernurse]).
 
-// Foyer: There are two spots in the foyer, one for the patient to enter, one for the patient to leave.
+// Foyer: There are two spots in the foyer, one for the patient to enter, 
+//        one for the patient to leave.
+//        Only one patient can be in the each spot.
 FOYERIN = FOYERIN[0],
 FOYERIN[i:0..1] = ( when (i < 1) allocatePatient -> FOYERIN[i+1]
 			      | when (i > 0) leaveFoyer -> FOYERIN[i-1]).
@@ -42,12 +50,45 @@ TREATMENT = TREATMENT[0],
 TREATMENT[i:0..1] = ( when (i < 1) enterTreatment -> TREATMENT[i+1]
 			        | when (i > 0) leaveTreatment -> TREATMENT[i-1]).
 
-// Specialist
+// Specialist: Specialist can enter and leave the treatment room whenever the specialist wants
+//             or the specialist enters the treatment room and treats the patient.
 SPECIALIST = ( specialistEnterTreatment -> specialistLeaveTreatment -> SPECIALIST
-			 | specialistEnterTreatment -> treatmentStart -> treatmentEnd -> specialistLeaveTreatment -> SPECIALIST).
+			 | specialistEnterTreatment -> treatmentStart -> treatmentEnd -> 
+               specialistLeaveTreatment -> SPECIALIST).
 
-// Concurrent -> the complete model
+// Hospital: The complete model.
+//           The specialist will randomly choose the path and 
+//           the specialist is shared by all the nurses, so that when the specialist can't leave
+//           the treatment room, it means that the specialist will treat the patient this time.
+//           The nurse will randomly choose the path, which determine if the patient is severe.
 const N_nurse = 3
-|| TEST = (nurse[i:1..N_nurse]:NURSE || nurse[i:1..N_nurse]::(PATIENT / {allocatePatient/admission, releasePatient/discharge}) 
-          || nurse[i:1..N_nurse]::(ORDERLIES) || nurse[i:1..N_nurse]::(FOYERIN) || nurse[i:1..N_nurse]::(FOYEROUT) 
-          || nurse[i:1..N_nurse]::(TRIAGE) || nurse[i:1..N_nurse]::(TREATMENT) || nurse[i:1..N_nurse]::(SPECIALIST)).
+|| HOSPITAL = (nurse[i:1..N_nurse]:NURSE 
+           || nurse[i:1..N_nurse]::(PATIENT / {allocatePatient/admission, releasePatient/discharge})
+           || nurse[i:1..N_nurse]::(ORDERLIES) || nurse[i:1..N_nurse]::(FOYERIN) 
+           || nurse[i:1..N_nurse]::(FOYEROUT) || nurse[i:1..N_nurse]::(TRIAGE) 
+           || nurse[i:1..N_nurse]::(TREATMENT) || nurse[i:1..N_nurse]::(SPECIALIST)).
+
+// Safe properties: Some safe properties are as follows.
+//                  They all make that the component of the hospital is not over limit.
+// Safe property for foyer.
+property FULL_FOYERIN = FULL_FOYERIN[0],
+FULL_FOYERIN[i:0..1] = ( when (i < 1) allocatePatient -> FULL_FOYERIN[i+1]
+			           | when (i > 0) leaveFoyer -> FULL_FOYERIN[i-1]).
+
+property FULL_FOYEROUT = FULL_FOYEROUT[0],
+FULL_FOYEROUT[i:0..1] = ( when (i < 1) enterFoyer -> FULL_FOYEROUT[i+1]
+			            | when (i > 0) releasePatient -> FULL_FOYEROUT[i-1]).
+
+// Safe property for triage.
+property FULL_TRIAGE = FULL_TRIAGE[0],
+FULL_TRIAGE[i:0..1] = ( when (i < 1) enterTriage -> FULL_TRIAGE[i+1]
+			          | when (i > 0) leaveTriage -> FULL_TRIAGE[i-1]).
+
+// Safe property for treatment room.
+property FULL_TREATMENT = FULL_TREATMENT[0],
+FULL_TREATMENT[i:0..1] = ( when (i < 1) enterTreatment -> FULL_TREATMENT[i+1]
+			             | when (i > 0) leaveTreatment -> FULL_TREATMENTENT[i-1]).
+
+// Safety check.
+||SAFE_HOSPITAL = (HOSPITAL || FULL_FOYERIN || FULL_FOYEROUT 
+             || FULL_TRIAGE || FULL_TREATMENT).
