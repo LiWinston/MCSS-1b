@@ -65,17 +65,18 @@ SPECIALIST = (in -> out -> SPECIALIST
 
 // Definition of Nurse process
 Nurse(I = 0) = Nurse[I],
-Nurse[x:0..4] = ( //SeriousPatients //NonSeriousPatients
-(fyArriveIn -> when(x == 0)  allocNs ->Nurse[1]
+Nurse[x: 0..7] = (
+        when(x == 0)  fyArriveIn -> allocNs ->Nurse[1] 
+        |when(x == 0) fyArriveIn -> allocNs ->Nurse[5]
         |when(x == 1) allocOd -> (fyArriveOut -> arriveTrg -> Nurse[2] |fyArriveOut -> freeOd -> allocOd -> arriveTrg -> Nurse[2])
         |when(x == 2) freeOd -> allocOd -> leaveTrg -> arriveTrt -> Nurse[3]
         |when(x == 3) freeOd -> treatStart -> treatEnd -> allocOd -> leaveTrt -> fyLeaveIn -> Nurse[4] 
-        |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0])
-|(fyArriveIn -> when(x == 0) fyArriveIn -> allocNs ->Nurse[1]
-        |when(x == 1) allocOd -> fyArriveOut  -> arriveTrg -> Nurse[2]
-        |when(x == 2) freeOd -> allocOd -> leaveTrg -> fyLeaveIn -> Nurse[4]
-        |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0])
-        ).
+        |when(x == 4) freeOd -> freeNs -> fyLeaveOut -> Nurse[0]
+
+        |when(x == 5) allocOd -> fyArriveOut  -> arriveTrg -> Nurse[2]
+        |when(x == 6) freeOd -> allocOd -> leaveTrg -> fyLeaveIn -> Nurse[4]
+        |when(x == 7) freeOd -> freeNs -> fyLeaveOut -> Nurse[0]).
+
 
 // Definition of Producer process
 Producer = (fyArriveIn -> Producer).
