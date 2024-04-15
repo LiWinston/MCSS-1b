@@ -110,4 +110,5 @@ progress  Check_patient_Liveness = {fyArriveIn ,allocNs,allocOd ,fyArriveOut
                             ns[1..MAX_NURSES]::FreeNurseCounter || ns[1..MAX_NURSES]::TRIAGE ||
                             ns[1..MAX_NURSES]::FoyerArrive ||ns[1..MAX_NURSES]::FoyerLeave || 
                             ns[1..MAX_NURSES]::TREATMENT || ns[1..MAX_NURSES]::SPECIALIST ||
-                            ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer).
+                            ns[1..MAX_NURSES]::Producer || ns[1..MAX_NURSES]::Consumer ||
+                            DeepDarkFantasy).
