@@ -14,6 +14,8 @@ const MAX_ARRIVING = 1
 //the number of patients that can be in the leaving place of Foyer
 const MAX_LEAVING = 1
 
+Actions = {allocNs, freeNs, allocOd, freeOd, fyArriveIn, fyArriveOut, fyLeaveIn, fyLeaveOut, arriveTrg, leaveTrg, arriveTrt, leaveTrt, in, out, treatStart, treatEnd}.
+
 FreeNurseCounter(I = MAX_NURSES) = NC[I],
 NC[v:0..MAX_NURSES] = (
     when (v < MAX_NURSES)  freeNs -> NC[v+1]
